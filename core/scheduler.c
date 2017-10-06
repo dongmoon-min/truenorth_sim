@@ -5,10 +5,10 @@
 
 void scheduler_init (scheduler* sch) {
    
-    memset ((void*)sch->timer, 0, sizeof(scheduler_t));
+    memset ((void*)&(sch->timer), 0, sizeof(scheduler_t));
     memset ((void*)sch->axons, 0, sizeof(axon) * AXON_NUMBER);
-    queue_init (sch->rq, SCHQUEUE_SIZE);
-    queue_init (sch->tq, SCHQUEUE_SIZE);
+    queue_init (&(sch->rq), SCHQUEUE_SIZE);
+    queue_init (&(sch->tq), SCHQUEUE_SIZE);
     
     return;
 }
@@ -18,11 +18,11 @@ int save_spike_info (scheduler* sch) {
     spike_info* ptr;
 
     // if queue is empty, return
-    if (isempty (sch->rq)){
+    if (isempty (&(sch->rq))){
         return 0;
     }
     // save spike_info into local sram(axons)
-    ptr = (spike_info*) dequeue (sch->rq);
+    ptr = (spike_info*) dequeue (&(sch->rq));
     sch->axons[ptr->tick].spike[ptr->axonno] = 1;
     free (ptr);
     return 0;
@@ -30,9 +30,9 @@ int save_spike_info (scheduler* sch) {
 
 int send_axon_to_token (core* mycore) {
     
-    scheduler* sch = mycore->sch;
-    queue* myqueue = sch->tq;
-    int* timer = &(sch->timer->st_timer);
+    scheduler* sch = &(mycore->sch);
+    queue* myqueue = &(sch->tq);
+    int* timer = &(sch->timer.st_timer);
     sch_request* rqst;
     axon* ptr;
     axon* src;
@@ -42,13 +42,13 @@ int send_axon_to_token (core* mycore) {
         return 0;
     }
     // waiting start
-    if (&timer == 0) {
-        &timer = AXONSEND_DELAY;
+    if (*timer == 0) {
+        *timer = AXONSEND_DELAY;
         return 0;
     }
-    (&timer) -= 1;
+    (*timer) -= 1;
     // if scheduler have to wait more time, return
-    if (&timer != 0) {
+    if (*timer != 0) {
         return 0;
     }
     // send axon to local TokenController
@@ -58,14 +58,17 @@ int send_axon_to_token (core* mycore) {
     memcpy ((void*)ptr, (void*)src, sizeof(axon));
     memset ((void*)src, 0, sizeof(axon));
     free (rqst);
-    mycore->tkn->input = ptr;
-    (mycore->tkn->state) += 1;
+    if (mycore->tkn.input != NULL) {
+        return -1;
+    }
+    mycore->tkn.input = ptr;
+    (mycore->tkn.state) += 1;
     return 0;
 }
 
 void scheduler_advance (core* mycore) {
     
-    scheduler* sch = mycore->sch;
+    scheduler* sch = &(mycore->sch);
     save_spike_info (sch);
     send_axon_to_token (mycore);
 

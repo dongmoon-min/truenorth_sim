@@ -7,18 +7,18 @@
 void router_init (router* myrouter) {
     
     // init timers
-    myrouter->timer->rs_timer = 0;
-    myrouter->timer->rrl_timer = 0;
-    myrouter->timer->rrr_timer = 0;
-    myrouter->timer->rru_timer = 0;
-    myrouter->timer->rrd_timer = 0;
+    myrouter->timer.rs_timer = 0;
+    myrouter->timer.rrl_timer = 0;
+    myrouter->timer.rrr_timer = 0;
+    myrouter->timer.rru_timer = 0;
+    myrouter->timer.rrd_timer = 0;
 
     // init queue;
-    void queue_init (&(myrouter->leftq), ROUTERQUEUE_SIZE);
-    void queue_init (&(myrouter->rightq), ROUTERQUEUE_SIZE);
-    void queue_init (&(myrouter->upperq), ROUTERQUEUE_SIZE);
-    void queue_init (&(myrouter->downq), ROUTERQUEUE_SIZE);
-    void queue_init (&(myrouter->inq), ROUTERQUEUE_SIZE);
+    queue_init (&(myrouter->leftq), ROUTERQUEUE_SIZE);
+    queue_init (&(myrouter->rightq), ROUTERQUEUE_SIZE);
+    queue_init (&(myrouter->upperq), ROUTERQUEUE_SIZE);
+    queue_init (&(myrouter->downq), ROUTERQUEUE_SIZE);
+    queue_init (&(myrouter->inq), ROUTERQUEUE_SIZE);
 
     return;
 }
@@ -46,10 +46,11 @@ int recieve_packet (router* des, packet* pkt) {
     if (pkt->dy < 0) {
         return enqueue (&(des->downq), (void*)pkt);
     }
+    return -1;
 }
 
 // send a packet, existed in 'myqueue', to another router
-int send_packet_to_router (router* des, queue* myqueue, int* timer) {
+int send_packet_rtr_to_rtr (router* des, queue* myqueue, int* timer) {
     
     packet* ptr;
 
@@ -58,13 +59,13 @@ int send_packet_to_router (router* des, queue* myqueue, int* timer) {
         return 0;
     }
     // waiting start
-    if (&timer == 0) {
-        &timer = PACKETSEND_DELAY;
+    if (*timer == 0) {
+        *timer = PACKETSEND_DELAY;
         return 0;
     }
-    (&timer) -= 1;
+    (*timer) -= 1;
     // if router have to wait more time, return
-    if (&timer != 0) {
+    if (*timer != 0) {
         return 0;
     }
     // send packet to destination router
@@ -87,13 +88,13 @@ int send_packet_to_scheduler (scheduler* des, queue* myqueue, int* timer) {
         return 0;
     }
     // waiting start
-    if (&timer == 0) {
-        &timer = SPIKESEND_DELAY;
+    if (*timer == 0) {
+        *timer = SPIKESEND_DELAY;
         return 0;
     }
-    (&timer) -= 1;
+    (*timer) -= 1;
     // if router have to wait more time, return
-    if (&timer != 0) {
+    if (*timer != 0) {
         return 0;
     }
     // send packet to local scheduler
@@ -101,7 +102,7 @@ int send_packet_to_scheduler (scheduler* des, queue* myqueue, int* timer) {
     ptr = (spike_info*) malloc (sizeof(spike_info));
     memcpy ((void*)ptr, (void*)&(pkt->spk), sizeof(spike_info));
     free (pkt);
-    if (enqueue (des->rq, (void*)ptr) < 0) {
+    if (enqueue (&(des->rq), (void*)ptr) < 0) {
         printf ("router-scheduler queue is full!\n");
         return -1;
     }
@@ -110,23 +111,23 @@ int send_packet_to_scheduler (scheduler* des, queue* myqueue, int* timer) {
 
 void router_advance (chip* mychip, int core_no) {
 
-    core* cur_core = mychip->cores[core_no];
-    router* myrouter = cur_core->rtr;
+    core* cur_core = &(mychip->cores[core_no]);
+    router* myrouter = &(cur_core->rtr);
 
-    send_packet_to_scheduler (cur_core->sch, &(myrouter->inq), &(myrouter->timer->rs_timer));
+    send_packet_to_scheduler (&(cur_core->sch), &(myrouter->inq), &(myrouter->timer.rs_timer));
     
     // left
     if (core_no % CHIP_LENGTH != 0)
-        send_packet_to_router (mychip->cores[core_no - 1], &(myrouter->leftq), &(myrouter->timer->rrl_timer));
+        send_packet_rtr_to_rtr (&(mychip->cores[core_no - 1].rtr), &(myrouter->leftq), &(myrouter->timer.rrl_timer));
     // right
     if (core_no % CHIP_LENGTH != CHIP_LENGTH - 1)
-        send_packet_to_router (mychip->cores[core_no + 1], &(myrouter->rightq), &(myrouter->timer->rrr_timer));
+        send_packet_rtr_to_rtr (&(mychip->cores[core_no + 1].rtr), &(myrouter->rightq), &(myrouter->timer.rrr_timer));
     // down
     if (core_no / CHIP_LENGTH != CHIP_LENGTH - 1)
-        send_packet_to_router (mychip->cores[core_no + CHIP_LENGTH], &(myrouter->downq), &(myrouter->timer->rrd_timer));
+        send_packet_rtr_to_rtr (&(mychip->cores[core_no + CHIP_LENGTH].rtr), &(myrouter->downq), &(myrouter->timer.rrd_timer));
     // upper
     if (core_no / CHIP_LENGTH != 0)
-        send_packet_to_router (mychip->cores[core_no - CHIP_LENGTH], &(myrouter->upperq), &(myrouter->timer->rru_timer));
+        send_packet_rtr_to_rtr (&(mychip->cores[core_no - CHIP_LENGTH].rtr), &(myrouter->upperq), &(myrouter->timer.rru_timer));
 
     return;
 }

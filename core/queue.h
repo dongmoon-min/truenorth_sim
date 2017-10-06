@@ -9,11 +9,14 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #define ADDRESS_SIZE    8
 
 typedef struct node_ {
     void* element;
-    node_* next;
+    struct node_* next;
 } node;
 
 typedef struct {
