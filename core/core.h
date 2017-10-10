@@ -4,6 +4,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #include "queue.h"
 
 #define NEURONS         256
@@ -61,7 +66,7 @@ typedef struct {
     spike_info spk;
 } packet;
 
-//scheduler to TokenController
+// scheduler to TokenController
 typedef struct {
     int spike[AXON_NUMBER];
 } axon;
@@ -168,7 +173,7 @@ void token_init (token* mytoken);
 void token_advance (core* mycore, int gclk);
 
 /* SRAM functions */
-void sram_init (sram* srm);
+void sram_init (sram* srm, char* ch);
 void sram_advance (core* mycore);
 
 /* NeuronBlock functions */
@@ -176,7 +181,7 @@ void neuron_init (core* mycore);
 void neuron_advance (core* mycore, int coreno);
 
 /* Chip controll functions */
-void chip_init (chip* mychip);
+void chip_init (chip* mychip, char* ch);
 void chip_advance (chip* mychip, int gclk);
 
 #endif

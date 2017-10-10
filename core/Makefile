@@ -3,10 +3,13 @@
 # Note: requires a 64-bit x86-64 system
 #
 CC =gcc
-CFLAGS = -g -Wall -Werror -std=c99 -m64
+CFLAGS = -g -Wall -Werror -m64
 ALL = main.o chip.o tokencontroller.o neuronblock.o coresram.o router.o scheduler.o queue.o
 
-all : ${ALL}
+all : truenorth datagen
+
+# truenorth: main execution file (TrueNorth micro-architecture Simulator)
+truenorth : ${ALL}
 	${CC} ${CFLAGS} -o truenorth ${ALL}
 
 main.o : main.c
@@ -33,6 +36,13 @@ router.o : router.c
 scheduler.o : scheduler.c
 	${CC} ${CFLAGS} -c -o scheduler.o scheduler.c
 
+# datagen: create a neuron_info file of TrueNorth
+datagen : datagen.c
+	${CC} ${CFLAGS} -o datagen datagen.c
+	./datagen
+
 clean :
 	rm *.o
 	rm truenorth
+	rm datagen
+	rm data/random_data

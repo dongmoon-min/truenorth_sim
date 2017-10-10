@@ -1,6 +1,6 @@
 #include "core.h"
 
-void chip_init (chip* mychip) {
+void chip_init (chip* mychip, char* ch) {
     
     core* mycore;
     int i;
@@ -12,7 +12,7 @@ void chip_init (chip* mychip) {
         router_init (&(mycore->rtr));
         scheduler_init (&(mycore->sch));
         token_init (&(mycore->tkn));
-        sram_init (&(mycore->srm));
+        sram_init (&(mycore->srm), ch);
         neuron_init (mycore);
     }
 
