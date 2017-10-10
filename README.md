@@ -7,6 +7,6 @@ usuage:
 3. type "./truenorth", then simulation initiated.
 
 
-if you want to see more options, type "./truenorth -h" in terminal.
-then truenorth will kindly explain how to use the truenorth simulator.
-if you have more question, please connect me, ehdans06@snu.ac.kr
+* if you want to see more options, type "./truenorth -h" in terminal.
+* then truenorth will kindly explain how to use the truenorth simulator.
+* if you have more question, please connect me, ehdans06@snu.ac.kr
