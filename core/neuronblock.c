@@ -58,15 +58,16 @@ int neuron_compute (core* mycore, int coreno) {
         for (i = 0; i < NEURONS; i++) {
             cinfo->ninfo.potential += cinfo->ninfo.weight[i] * cinfo->ninfo.synapse[i] * cinfo->spike.spike[i];
         }
-        // if potential is over the threshold voltage, send a packet to router
-        if (cinfo->ninfo.potential >= THRESHOLD_VOLT) {
-            cinfo->ninfo.potential = BOTTOM_VOLT;
-            pkt = (packet*) malloc (sizeof(packet));
-            dxdy_compute (coreno, cinfo->ninfo.dest, &(pkt->dx), &(pkt->dy));
-            pkt->spk.axonno = cinfo->ninfo.des_axon;
-            pkt->spk.tick = cinfo->ninfo.tick;
-            enqueue (prq, (void*)pkt);
-        }
+    }
+    // if potential is over the threshold voltage, or the neuron is a spike generator,
+    // send a packet to router
+    if (cinfo->ninfo.potential >= THRESHOLD_VOLT || cinfo->ninfo.nopt == 1) {
+        cinfo->ninfo.potential = BOTTOM_VOLT;
+        pkt = (packet*) malloc (sizeof(packet));
+        dxdy_compute (coreno, cinfo->ninfo.dest, &(pkt->dx), &(pkt->dy));
+        pkt->spk.axonno = cinfo->ninfo.des_axon;
+        pkt->spk.tick = cinfo->ninfo.tick;
+        enqueue (prq, (void*)pkt);
     }
     // if potential is lower than bottom voltage,
     cinfo->ninfo.potential -= cinfo->ninfo.leak;

@@ -80,6 +80,7 @@ typedef struct {
     int dest;
     int des_axon;
     int tick;
+    int nopt; // neuron option (0: normal neuron, 1: spike generator)
 } neuron_info;
 
 // TokenController to NeuronBlock

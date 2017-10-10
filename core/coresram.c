@@ -93,8 +93,11 @@ void get_neuron_info (sram* srm, char* ch) {
         srm->ninfo[i].dest = data;
         fscanf (fd, "%d ", &data);
         srm->ninfo[i].des_axon = data;
-        fscanf (fd, "%d\n", &data);
+        fscanf (fd, "%d ", &data);
         srm->ninfo[i].tick = data;
+        // get nopt info (type of neuron)
+        fscanf (fd, "%d\n", &data);
+        srm->ninfo[i].nopt = data;
     }
 
     return;

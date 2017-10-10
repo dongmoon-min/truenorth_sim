@@ -11,6 +11,7 @@ int main (int argc, char* argv[]) {
 
     int opt, i;
     char filename[FILE_NAME];
+    memcpy (filename, "data/random_data", 256);
 
     // -h: help, -g: GUI ON, -f: filename
     while ((opt = getopt (argc, argv, "hgf:")) != -1) {
@@ -27,12 +28,12 @@ int main (int argc, char* argv[]) {
     }
 
     // initiate TrueNorth chip
-    printf ("now initiate a chip...");
+    printf ("now initiate a chip...\n");
     chip_init (&mychip, filename);
     printf ("complete!\n");
 
     // simulate TrueNorth for 'SIMTIME' tick
-    printf ("simulate TrueNorth Chip for %dms...", SIMTIME%GTICK_INTERVAL);
+    printf ("simulate TrueNorth Chip for %dms...\n", SIMTIME/GTICK_INTERVAL);
     for (i = 0; i < SIMTIME; i++) {
         chip_advance (&mychip, i);
         if (i%GTICK_INTERVAL == 0)

@@ -1,7 +1,7 @@
 #include "core.h"
 
-#define ROUTERQUEUE_SIZE    16
-#define PACKETSEND_DELAY    100
+#define ROUTERQUEUE_SIZE    40
+#define PACKETSEND_DELAY    2
 #define SPIKESEND_DELAY     2
 
 void router_init (router* myrouter) {
@@ -32,18 +32,22 @@ int recieve_packet (router* des, packet* pkt) {
     }
     // insert packet in right-queue, queue for save massage send to right side router
     if (pkt->dx > 0) {
+        pkt->dx--;
         return enqueue (&(des->rightq), (void*)pkt);
     }
     // insert packet in left-queue, queue for save massage send to left side router
     if (pkt->dx < 0) {
+        pkt->dx++;
         return enqueue (&(des->leftq), (void*)pkt);
     }
     // insert packet in upper-queue, queue for save massage send to upper side router
     if (pkt->dy > 0) {
+        pkt->dy--;
         return enqueue (&(des->upperq), (void*)pkt);
     }
     // insert packet in down-queue, queue for save massage send to down side router
     if (pkt->dy < 0) {
+        pkt->dy++;
         return enqueue (&(des->downq), (void*)pkt);
     }
     return -1;

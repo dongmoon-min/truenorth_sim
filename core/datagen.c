@@ -42,7 +42,15 @@ int main () {
         data = (rand () % AXON_NUMBER);
         fprintf (fd, "%d ", data);
         data = (rand () % TICK_RANGE);
-        fprintf (fd, "%d\n", data);
+        fprintf (fd, "%d ", data);
+        // generate nopt info (type of neuron; normal : spikegen = 999 : 1)
+        data = (rand () % 1000);
+        if (data < 1) {
+            fprintf (fd, "%d\n", 1);
+        }
+        else {
+            fprintf (fd, "%d\n", 0);
+        }
     }
     printf ("complete!\n\n");
     printf ("data location: data/random_data\n");
