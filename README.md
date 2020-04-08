@@ -16,4 +16,4 @@ usuage:
 2. "./truenorth -h" will show available options of simulators.
 3. basically, "./truenorth" will initiate simulation, but if you want to see some graphic of activation rate of router, type "./truenorth -g". 
 
-* if you have more question, please connect me, ehdans06@snu.ac.kr
+* if you have more question, please connect me, dongmoon.min@snu.ac.kr
